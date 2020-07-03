@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .hoverbox-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hoverbox-container .hoverbox-box:before {
+            content: '';
+            width: 50%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(255, 255, 255, .2);
+            z-index: 2;
+        }
+
+        .hoverbox-container .hoverbox-box {
+            position: relative;
+            padding: 40px;
+            background: #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
+            border-radius: 4px;
+            margin: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+            text-align: center;
+
+        }
+
+        .hoverbox-container .hoverbox-box .hoverbox-icon {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            color: #fff;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+            border-radius: 50%;
+            font-size: 20px;
+            font-weight: 700;
+            transition: 1s;
+        }
+
+        .hoverbox-container .hoverbox-box:nth-child(1) .hoverbox-icon {
+            box-shadow: 0 0 0 0 #e91e63;
+            background: #e91e63;
+
+        }
+
+
+        .hoverbox-container .hoverbox-box:nth-child(2) .hoverbox-icon {
+            box-shadow: 0 0 0 0 #23e629;
+            background: #23e629;
+
+        }
+
+    
+
+        .hoverbox-container .hoverbox-box:nth-child(3) .hoverbox-icon {
+            box-shadow: 0 0 0 0 #2196f3;
+            background: #2196f3;
+
+        }
+
+        .hoverbox-container .hoverbox-box .hoverbox-content {
+            position: relative;
+            z-index: 1;
+            transition: 0.5s;
+        }
+
+
+        .hoverbox-container .hoverbox-box:hover .hoverbox-content h3 {
+            padding: 0;
+        }
+
+        .hoverbox-container .hoverbox-box .hoverbox-content a {
+
+            display: inline-block;
+            padding: 10px 20px;
+            background: #fff;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #000;
+            font-weight: 500;
+            margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, .2);
+        }
+
+        .readmore {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hoverbox-container" id="divPartList">
+
+    </div>
+
+    <template id="tmpPartList">
+        <div class="hoverbox-box">
+            <div class="hoverbox-icon" id="_pcm_bom_id" onclick="viewDetail(this)" style="cursor: pointer;">1327</div>
+            <div class="hoverbox-content">
+                <h3 id="_dpa"></h3>
+                <p>BOM : <span id="_bom"></span></p>
+                <p>Category : <span id="_category"></span></p>
+                <p>Colorway : <span id="_colorway_desc"></span></p>
+                <p>Gender : <span id="_gender"></span></p>
+                <p>Line : <span id="_line"></span></p>
+                <p>Prod.Qty : <span id="_prod_qty"></span></p>
+                <p>Pur.Qty : <span id="_pur_qty"></span></p>
+                <p>Purchase : <span id="_purchase"></span></p>
+                <p>Sample.Type : <span id="_sample_type"></span></p>
+                <p>Season : <span id="_season"></span></p>
+                <p>Style.Name : <span id="_style_name"></span></p>
+                <p>TD : <span id="_td"></span></p>
+                <p>Worksheet : <span id="_worksheet"></span></p>
+            </div>
+        </div>
+
+    </template>
+    <script src="/js/jquery-3.4.1.min.js"></script>
+    <script src="/js/common.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            templatePolyfill();
+            $.ajax({
+                url: "/retrieve/pcxbommanager",
+                type: "get",
+                dataType: "JSON",
+                success: function (data) {
+                    for (let i = 0; i < data.value.length; i++) {
+                        drawPart(data.value[i]);
+                    }
+
+                    let body = document.body;
+                    let htmldoc = document.documentElement;
+                    let height = Math.max(body.scrollHeight, body.offsetHeight, htmldoc.clientHeight, htmldoc.scrollHeight, htmldoc.offsetHeight);
+
+
+                    parent.setIframeHeight(height + 'px');
+                },
+            });
+        });
+
+        function drawPart(data) {
+
+            var tbody = document.querySelector('#divPartList');
+            var tmp = document.querySelector("#tmpPartList");
+            $(tmp.content).find('#_pcm_bom_id').text(data._pcm_bom_id);
+            $(tmp.content).find('#_dpa').text(data._dpa);
+            $(tmp.content).find('#_bom').text(data._bom);
+            $(tmp.content).find('#_category').text(data._category);
+            $(tmp.content).find('#_colorway_desc').text(data._colorway_desc);
+            $(tmp.content).find('#_gender').text(data._gender);
+            $(tmp.content).find('#_line').text(data._line);
+            $(tmp.content).find('#_prod_qty').text(data._prod_qty);
+            $(tmp.content).find('#_pur_qty').text(data._pur_qty);
+            $(tmp.content).find('#_purchase').text(data._purchase);
+            $(tmp.content).find('#_sample_type').text(data._sample_type);
+            $(tmp.content).find('#_season').text(data._season);
+            $(tmp.content).find('#_style_name').text(data._style_name);
+            $(tmp.content).find('#_td').text(data._td);
+            $(tmp.content).find('#_worksheet').text(data._worksheet);
+            $(tmp.content).find('#_dpa').text(data._dpa);
+            $(tmp.content).find('#_dpa').text(data._dpa);
+            $(tmp.content).find('#_dpa').text(data._dpa);
+            $(tmp.content).find('#_dpa').text(data._dpa);
+            var clone = document.importNode(tmp.content, true);
+            tbody.appendChild(clone);
+        }
+
+        function viewDetail(obj){
+            location.href = "/pcxbomdetail?id="+obj.textContent
+        }
+    </script>
+</body>
+
+</html>

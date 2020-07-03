@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" id="viewport"
+    content="width=device-width,initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0,user-scalable=no" />
+  <title>digonal nav</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700i" rel="stylesheet" />
+  <script src="/js/jquery-3.4.1.min.js"></script>
+  <script src="/js/common.js"></script>
+  <style>
+    html,
+    body {
+      height: 100%;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Roboto Condensed", sans-serif;
+      line-height: 1.7;
+      perspective-origin: 0% 50%;
+      perspective: 800px;
+    }
+
+    nav,
+    main {
+      transition: transform 150ms ease-out;
+    }
+
+    nav {
+      z-index: 100;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 16em;
+      background-color: #353441;
+      transform: translateX(-16em);
+    }
+
+    nav.menu-active {
+      transform: translateX(0);
+    }
+
+    nav.menu-hover {
+      transform: translateX(-15em);
+    }
+
+    nav h1 {
+      z-index: 100;
+      display: block;
+      position: absolute;
+      top: 0;
+      right: -35px;
+      height: 35px;
+      width: 35px;
+      line-height: 35px;
+      font-size: 0.8em;
+      font-weight: 300;
+      letter-spacing: 1px;
+      color: #fff;
+      text-transform: uppercase;
+      text-align: center;
+      background-color: #353441;
+      cursor: pointer;
+    }
+
+    nav h1:hover {
+      color: #353441;
+      background: #fff;
+    }
+
+    nav ul {
+      margin: 0;
+      padding: 0;
+    }
+
+    nav li {
+      display: inline-block;
+      padding: 0 1em;
+      width: 100%;
+      height: 60px;
+      color: #9dc6d1;
+      line-height: 60px;
+      background-color: #353441;
+      transition: all 0.5s ease-in;
+    }
+
+    nav li:nth-of-type(2n) {
+      background-color: #3a3947;
+    }
+
+    nav li:hover {
+      background: ORANGERED;
+      color: white;
+    }
+
+    main {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      transform-origin: 0% 50%;
+      background-size: cover;
+    }
+
+    main:after {
+      content: "";
+      display: block;
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background: linear-gradient(to right,
+          transparent,
+          rgba(33, 33, 45, 0.5));
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 150ms ease-out, visibility 0s 150ms;
+    }
+
+    main.menu-active {
+      border-radius: 0.001px;
+      transform: translateX(16em) rotateY(15deg);
+    }
+
+    main.menu-active:after {
+      visibility: visible;
+      opacity: 1;
+      transition: opacity 150ms ease-out, visibility 0s;
+    }
+
+    main.menu-hover {
+      border-radius: 0.001px;
+      transform: translateX(1em) rotateY(1deg);
+    }
+
+    main section {
+      position: absolute;
+      top: 48;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      margin: auto;
+      padding: 1em 10px;
+      overflow: auto;
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+
+    section h1 {
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 2em;
+    }
+
+    section p {
+      display: inline-block;
+      margin: 16px 0;
+    }
+
+    header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 35px;
+      border-bottom: 1px solid rgba(221, 221, 221);
+      background-color: rgb(245, 245, 245)
+    }
+    header .hello {
+      font-size: 11.5px;
+      float: right;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="menu-activea">
+    <h1 onclick="menu.toggle()">=</h1>
+    <ul>
+      <li onclick="menu.click(1)">Projects</li>
+      <li onclick="menu.click(2)">CS parts</li>
+      <li onclick="menu.click(3)">PCX BOM Manager</li>
+    </ul>
+  </nav>
+  <main>
+    <header>
+      <span class="hello" style="margin-right: 10px;">
+        <span style="font-weight: 600;" id="headerUserName"> </span>
+      </span>
+    </header>
+    <section style="height: calc(100% - 49px);">
+      <iframe id="ifMain" style="border: none; width: 100%; height: 100%;"></iframe>
+    </section>
+  </main>
+  <script>
+    let menu = {
+      open: true,
+      toggle: function () {
+        menu.open = !menu.open ? true : false;
+        document.querySelector("nav").classList.toggle("menu-active");
+        document.querySelector("main").classList.toggle("menu-active");
+        document.querySelector("nav").classList.remove("menu-hover");
+        document.querySelector("main").classList.remove("menu-hover");
+      },
+      click: function (idx) {
+        document.querySelector('#ifMain').style.height = "100%";
+        menu.toggle();
+        $("nav ul li").removeClass("selected");
+        $("nav ul li").eq(idx).addClass("selected");
+        switch (idx) {
+          case 1:
+            $("#ifMain").attr("src", "/project");
+            break;
+          case 2:
+            $("#ifMain").attr("src", "/cspart");
+            break;
+          case 3:
+            $("#ifMain").attr("src", "/pcxbommanager");
+            break;
+        }
+      },
+    };
+
+    $(document).ready(function () {
+      templatePolyfill();
+      $.ajax({
+        url: "/session",
+        type: "get",
+        dataType: "JSON",
+        success: function (data) {
+          if (!data || !data.login_name) {
+            location.href = "/";
+          }
+          $("#headerUserName").html(data.keyed_name + "님 안녕하세요.");
+          window.authuser = data.login_name;
+          window.authpassword = data.password;
+          $("#ifMain").attr("src", "/project");
+        },
+      });
+    });
+
+    function setIframeHeight(height){
+      document.querySelector('#ifMain').style.height = height;
+    }
+  </script>
+</body>
+
+</html>

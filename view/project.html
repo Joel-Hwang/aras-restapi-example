@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .hoverbox-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hoverbox-container .hoverbox-box:before {
+            content: '';
+            width: 50%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(255, 255, 255, .2);
+            z-index: 2;
+        }
+
+        .hoverbox-container .hoverbox-box {
+            position: relative;
+            width: 80%;
+            padding: 40px;
+            background: #fff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
+            border-radius: 4px;
+            margin: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+            text-align: center;
+
+        }
+
+        .hoverbox-container .hoverbox-box .hoverbox-icon {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            color: #fff;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
+            border-radius: 50%;
+            font-size: 30px;
+            font-weight: 700;
+            transition: 1s;
+        }
+
+        .hoverbox-container .hoverbox-box:nth-child(1) .hoverbox-icon {
+            box-shadow: 0 0 0 0 #e91e63;
+            background: #e91e63;
+
+        }
+
+
+        .hoverbox-container .hoverbox-box:nth-child(2) .hoverbox-icon {
+            box-shadow: 0 0 0 0 #23e629;
+            background: #23e629;
+
+        }
+
+    
+
+        .hoverbox-container .hoverbox-box:nth-child(3) .hoverbox-icon {
+            box-shadow: 0 0 0 0 #2196f3;
+            background: #2196f3;
+
+        }
+
+        .hoverbox-container .hoverbox-box .hoverbox-content {
+            position: relative;
+            z-index: 1;
+            transition: 0.5s;
+        }
+
+
+        .hoverbox-container .hoverbox-box:hover .hoverbox-content h3 {
+            padding: 0;
+        }
+
+        .hoverbox-container .hoverbox-box .hoverbox-content a {
+
+            display: inline-block;
+            padding: 10px 20px;
+            background: #fff;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #000;
+            font-weight: 500;
+            margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, .2);
+        }
+
+        .readmore {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="hoverbox-container" id="divProjectList">
+
+    </div>
+
+    <template id="tmpProjectList">
+        <div class="hoverbox-box">
+            <div class="hoverbox-icon" id="project_number">1327</div>
+            <div class="hoverbox-content">
+                <h3 id="name">테스트 프로젝트</h3>
+                <p>일정 : <span id="date_start_sched"></span>~<span id="date_due_sched"></span></p>
+                <p>상태 : <span id="state"></span></p>
+                <p>Category : <span id="_category"></span></p>
+                <p>Season : <span id="_season"></span></p>
+                <p>TD : <span id="_td"></span></p>
+                <p>DEV.Style : <span id="_dev_style_no"></span></p>
+
+                <p class="readmore">DPA : <span id="_dpa"></span></p>
+                <p class="readmore">Fly Knit : <span id="_flyknit"></span></p>
+                <p class="readmore">Last : <span id="_last"></span></p>
+                <p class="readmore">Last2 : <span id="_last2"></span></p>
+                <p class="readmore">Model(mdm) : <span id="_model_mdm"></span></p>
+                <p class="readmore">Model ID : <span id="_modelid"></span></p>
+                <p class="readmore">New Tooling : <span id="_newtooling"></span></p>
+                <p class="readmore">Specification : <span id="_specification"></span></p>
+                <p class="readmore"> : <span id="_specification"></span></p>
+                <p class="readmore">PH1 : <span id="percent_compl_1"></span></p>
+                <p class="readmore">PH2 : <span id="percent_compl_2"></span></p>
+                <p class="readmore">PH3 : <span id="percent_compl_3"></span></p>
+                <p class="readmore">PH4 : <span id="percent_compl_4"></span></p>
+                <p class="readmore">PH5 : <span id="percent_compl_5"></span></p>
+                <p class="readmore">PH6 : <span id="percent_compl_6"></span></p>
+                <p class="readmore">PH7 : <span id="percent_compl_7"></span></p>
+                <p class="readmore">PH8 : <span id="percent_compl_8"></span></p>
+
+                <button onclick="readmore(this)">Read More</button>
+            </div>
+        </div>
+
+    </template>
+    <script src="/js/jquery-3.4.1.min.js"></script>
+    <script src="/js/common.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            templatePolyfill();
+            $.ajax({
+                url: "/retrieve/project",
+                type: "get",
+                dataType: "JSON",
+                success: function (data) {
+                    for (let i = 0; i < data.value.length; i++) {
+                        drawProject(data.value[i]);
+                    }
+
+                    let body = document.body;
+                    let htmldoc = document.documentElement;
+                    let height = Math.max(body.scrollHeight, body.offsetHeight, htmldoc.clientHeight, htmldoc.scrollHeight, htmldoc.offsetHeight);
+
+
+                    parent.setIframeHeight(height + 'px');
+                },
+            });
+        });
+
+        function drawProject(data) {
+
+            var tbody = document.querySelector('#divProjectList');
+            var tmp = document.querySelector("#tmpProjectList");
+            $(tmp.content).find('#project_number').text(data.project_number);
+            $(tmp.content).find('#name').text(data.name);
+            $(tmp.content).find('#date_start_sched').text(common.getTimeString(data.date_start_sched));
+            $(tmp.content).find('#date_due_sched').text(common.getTimeString(data.date_due_sched));
+            $(tmp.content).find('#state').text(data.state);
+            $(tmp.content).find('#_category').text(data._category);
+            $(tmp.content).find('#_td').text(data._td);
+            $(tmp.content).find('#_dpa').text(data._dpa);
+            $(tmp.content).find('#_flyknit').text(data._flyknit);
+            $(tmp.content).find('#_last').text(data._last);
+            $(tmp.content).find('#_last2').text(data._last2);
+            $(tmp.content).find('#_model_mdm').text(data._model_mdm);
+            $(tmp.content).find('#_modelid').text(data._modelid);
+            $(tmp.content).find('#_newtooling').text(data._newtooling);
+            $(tmp.content).find('#_specification').text(data._specification);
+            $(tmp.content).find('#percent_compl_1').text(data.percent_compl_1);
+            $(tmp.content).find('#percent_compl_2').text(data.percent_compl_2);
+            $(tmp.content).find('#percent_compl_3').text(data.percent_compl_3);
+            $(tmp.content).find('#percent_compl_4').text(data.percent_compl_4);
+            $(tmp.content).find('#percent_compl_5').text(data.percent_compl_5);
+            $(tmp.content).find('#percent_compl_6').text(data.percent_compl_6);
+            $(tmp.content).find('#percent_compl_7').text(data.percent_compl_7);
+            $(tmp.content).find('#percent_compl_8').text(data.percent_compl_8);
+            $(tmp.content).find('#percent_compl_1').css('background-color', data.status_1);
+            $(tmp.content).find('#percent_compl_2').css('background-color', data.status_2);
+            $(tmp.content).find('#percent_compl_3').css('background-color', data.status_3);
+            $(tmp.content).find('#percent_compl_4').css('background-color', data.status_4);
+            $(tmp.content).find('#percent_compl_5').css('background-color', data.status_5);
+            $(tmp.content).find('#percent_compl_6').css('background-color', data.status_6);
+            $(tmp.content).find('#percent_compl_7').css('background-color', data.status_7);
+            $(tmp.content).find('#percent_compl_8').css('background-color', data.status_8);
+            var clone = document.importNode(tmp.content, true);
+            tbody.appendChild(clone);
+        }
+
+        function readmore(obj) {
+            if ($(obj).parent().find('.readmore').css('display') === "none")
+                $(obj).parent().find('.readmore').css('display', 'block');
+            else
+                $(obj).parent().find('.readmore').css('display', 'none');
+        }
+    </script>
+</body>
+
+</html>
