@@ -72,6 +72,7 @@ app.get("/pstdetail", function (req, res) {
   let helper = new dxf.Helper(contents.toString());
   let parsedData = helper.parsed;
   
+  
   res.send(parsedData.blocks);
 
 });
