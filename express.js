@@ -1,11 +1,14 @@
 var express = require("express"); //express 불러오기
 var app = express(); //express 객체 생성
+const dxf = require('dxf'); //dxf parser
 var fs = require("fs");
 var cors = require("cors");
 var apiServer = "http://localhost/InnovatorServer/server/odata";
+var authServer = "http://localhost/InnovatorServer/oauthserver/connect/token";
 var request = require("request");
 var session = require("express-session");
 var bodyParser = require("body-parser");
+const { get } = require("request");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(
@@ -59,7 +62,23 @@ app.get("/pcxbomdetail", function (req, res) {
   res.end(fs.readFileSync(__dirname + "/view/pcxbomdetail.html"));
 });
 
+app.get("/pst", function (req, res) {
+  res.writeHead(200);
+  res.end(fs.readFileSync(__dirname + "/view/pst.html"));
+});
+
+app.get("/pstdetail", function (req, res) {
+  let contents = fs.readFileSync("C:\\Users\\cheol.hwang\\Downloads\\QVFGTM.DXF");
+  let helper = new dxf.Helper(contents.toString());
+  let parsedData = helper.parsed;
+  
+  res.send(parsedData.blocks);
+
+});
+
 app.get("/login", async function (req, res) {
+  let token = await getToken(req.query.userid, req.query.userpassword);
+
   const options = {
     uri: apiServer + "/user",
     method: "GET",
@@ -67,9 +86,7 @@ app.get("/login", async function (req, res) {
       $filter: "login_name eq '" + req.query.userid + "'",
     },
     headers: {
-      AUTHUSER: req.query.userid,
-      AUTHPASSWORD: req.query.userpassword,
-      DATABASE: "InnovatorSolutions",
+      Authorization: "Bearer " + token,
     },
   };
   var result = await requestSync(options);
@@ -89,13 +106,13 @@ app.get("/login", async function (req, res) {
 });
 
 app.get("/retrieve/project", async function (req, res) {
+  let token = await getToken(req.session.login_name, req.session.password);
+
   const options = {
     uri: apiServer + "/project",
     method: "GET",
     headers: {
-      AUTHUSER: req.session.login_name,
-      AUTHPASSWORD: req.session.password,
-      DATABASE: "InnovatorSolutions",
+      Authorization: "Bearer " + token,
     },
   };
   var result = await requestSync(options);
@@ -104,13 +121,13 @@ app.get("/retrieve/project", async function (req, res) {
 });
 
 app.get("/retrieve/cspart", async function (req, res) {
+  let token = await getToken(req.session.login_name, req.session.password);
+
   const options = {
     uri: apiServer + "/cs part?$select=*",
     method: "GET",
     headers: {
-      AUTHUSER: req.session.login_name,
-      AUTHPASSWORD: req.session.password,
-      DATABASE: "InnovatorSolutions",
+      Authorization: "Bearer " + token,
     },
   };
   var result = await requestSync(options);
@@ -119,13 +136,13 @@ app.get("/retrieve/cspart", async function (req, res) {
 });
 
 app.get("/retrieve/pcxbommanager", async function (req, res) {
+  let token = await getToken(req.session.login_name, req.session.password);
+
   const options = {
     uri: apiServer + "/pcx bom manager",
     method: "GET",
     headers: {
-      AUTHUSER: req.session.login_name,
-      AUTHPASSWORD: req.session.password,
-      DATABASE: "InnovatorSolutions",
+      Authorization: "Bearer " + token,
     },
   };
   var result = await requestSync(options);
@@ -134,6 +151,8 @@ app.get("/retrieve/pcxbommanager", async function (req, res) {
 });
 
 app.get("/retrieve/pcxbomdetail", async function (req, res) {
+  let token = await getToken(req.session.login_name, req.session.password);
+
   const options = {
     uri: apiServer + "/pcx bom manager",
     method: "GET",
@@ -142,9 +161,7 @@ app.get("/retrieve/pcxbomdetail", async function (req, res) {
       $expand: "PCX BOM MANAGER PCX MART($expand=related_id)"
     },
     headers: {
-      AUTHUSER: req.session.login_name,
-      AUTHPASSWORD: req.session.password,
-      DATABASE: "InnovatorSolutions",
+      Authorization: "Bearer " + token,
     },
   };
   var result = await requestSync(options);
@@ -154,30 +171,23 @@ app.get("/retrieve/pcxbomdetail", async function (req, res) {
 
 
 app.get("/download", async function (req, res) {
+  let token = await getToken(req.session.login_name, req.session.password);
 
 
   const options = {
     uri: "http://localhost/InnovatorServer/server/odata/Document('E8717FDF0C7641DF94DCD90F5B082329')/Document File('ECD3EFCE16A74031B53106FA804EB2CD')/related_id/$value",
     method: "GET",
     headers: {
-      AUTHUSER: 'admin',
-      AUTHPASSWORD: '607920b64fe136f9ab2389e371852af2',
-      DATABASE: "InnovatorSolutions",
+      Authorization: "Bearer " + token,
     },
   };
   var result = await requestSyncFile(options);
   //res.body = result.body;
- // res.send(result.body);
-  
-
-  
-
-  fs.writeFile("./image.png", result.body,'binary', function(err) {
+  // res.send(result.body);
+  fs.writeFile("./image.png", result.body, 'binary', function (err) {
     if (err) throw err;
-});
+  });
 
-  
-  
 });
 
 
@@ -196,4 +206,22 @@ function requestSyncFile(options) {
       resolve(response);
     }).pipe(fs.createWriteStream('sample.png'));
   });
+}
+
+async function getToken(id, pw) {
+  const options = {
+    uri: authServer,
+    method: "POST",
+    json:true,
+    form: {
+      grant_type: "password",
+      scope: "Innovator",
+      client_id: "IOMApp",
+      username: id,
+      password: pw,
+      database: "InnovatorSolutions",
+    }
+  };
+  var result = await requestSync(options);
+  return result.access_token;
 }
