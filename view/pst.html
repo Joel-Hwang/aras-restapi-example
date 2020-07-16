@@ -115,7 +115,7 @@
 </head>
 
 <body>
-    <div id="items" >
+    <div id="items">
 
 
 
@@ -162,13 +162,21 @@
             $(tmp.content).find('div[name="part"]').text(data.name);
             for (let i = 0; i < data.entities.length; i++) {
                 console.log(data.entities[i]);
-                if(data.entities[i].type === 'CIRCLE') continue;
-                for (let j = 0; j < data.entities[i].vertices.length; j++) {
-                    let loc = data.entities[i].vertices[j];
-                    minX = Math.min(minX, loc.x);
-                    minY = Math.min(minY, loc.y);
-                    maxX = Math.max(maxX, loc.x);
-                    maxY = Math.max(maxY, loc.y);
+                switch (data.entities[i].type) {
+                    case 'CIRCLE':
+                        minX = Math.min(minX, data.entities[i].x);
+                        minY = Math.min(minY, data.entities[i].y);
+                        maxX = Math.max(maxX, data.entities[i].x);
+                        maxY = Math.max(maxY, data.entities[i].y);
+                        break;
+                    default:
+                        for (let j = 0; j < data.entities[i].vertices.length; j++) {
+                            let loc = data.entities[i].vertices[j];
+                            minX = Math.min(minX, loc.x);
+                            minY = Math.min(minY, loc.y);
+                            maxX = Math.max(maxX, loc.x);
+                            maxY = Math.max(maxY, loc.y);
+                        }
                 }
             }
 
@@ -183,20 +191,32 @@
         }
 
         function drawCanvas(canvas, minX, minY, data) {
+            var padding = 10;
             var c = canvas;
             var ctx = c.getContext("2d");
-            ctx.beginPath();
+
 
             for (let i = 0; i < data.length; i++) {
                 console.log(data[i]);
-                if(data[i].type === 'CIRCLE') continue;
-                for (let j = 1; j < data[i].vertices.length; j++) {
-                    let preloc = data[i].vertices[j - 1];
-                    let loc = data[i].vertices[j];
-                    ctx.moveTo(preloc.x - minX + 10, preloc.y - minY + 10);
-                    ctx.lineTo(loc.x - minX + 10, loc.y - minY + 10);
-                    ctx.stroke();
+                switch (data[i].type) {
+                    case 'CIRCLE':
+                        ctx.beginPath();
+                        ctx.arc(data[i].x - minX + padding,
+                            data[i].y - minY + padding,
+                            data[i].r, 0, 2 * Math.PI, true);
+                        ctx.stroke();
+                        break;
+                    default:
+                        ctx.beginPath();
+                        for (let j = 1; j < data[i].vertices.length; j++) {
+                            let preloc = data[i].vertices[j - 1];
+                            let loc = data[i].vertices[j];
+                            ctx.moveTo(preloc.x - minX + padding, preloc.y - minY + padding);
+                            ctx.lineTo(loc.x - minX + padding, loc.y - minY + padding);
+                            ctx.stroke();
+                        }
                 }
+
 
             }
         }
