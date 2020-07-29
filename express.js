@@ -3,8 +3,12 @@ var app = express(); //express 객체 생성
 const dxf = require('dxf'); //dxf parser
 var fs = require("fs");
 var cors = require("cors");
-var apiServer = "http://localhost/InnovatorServer/server/odata";
-var authServer = "http://localhost/InnovatorServer/oauthserver/connect/token";
+//var apiServer = "http://localhost/InnovatorServer/server/odata";
+//var authServer = "http://localhost/InnovatorServer/oauthserver/connect/token";
+//var databaseName = "InnovatorSolutions";
+var apiServer = "http://203.228.101.197/digitalpcc/server/odata";
+var authServer = "http://203.228.101.197/digitalpcc/oauthserver/connect/token";
+var databaseName = "DigitalPCC";
 var request = require("request");
 var session = require("express-session");
 var bodyParser = require("body-parser");
@@ -75,6 +79,11 @@ app.get("/pstdetail", function (req, res) {
   
   res.send(parsedData.blocks);
 
+});
+
+app.get("/labtest", function (req, res) {
+  res.writeHead(200);
+  res.end(fs.readFileSync(__dirname + "/view/labtest.html"));
 });
 
 app.get("/login", async function (req, res) {
@@ -170,6 +179,21 @@ app.get("/retrieve/pcxbomdetail", async function (req, res) {
   res.send(data);
 });
 
+app.get("/retrieve/labtest", async function (req, res) {
+  let token = await getToken(req.session.login_name, req.session.password);
+
+  const options = {
+    uri: apiServer + "/ZX_LABTEST",
+    method: "GET",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  };
+  var result = await requestSync(options);
+  let response = JSON.parse(result);
+  res.send(response);
+});
+
 
 app.get("/download", async function (req, res) {
   let token = await getToken(req.session.login_name, req.session.password);
@@ -220,7 +244,7 @@ async function getToken(id, pw) {
       client_id: "IOMApp",
       username: id,
       password: pw,
-      database: "InnovatorSolutions",
+      database: databaseName,
     }
   };
   var result = await requestSync(options);
