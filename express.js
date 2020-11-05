@@ -12,7 +12,10 @@ var databaseName = "DigitalPCC";
 var request = require("request");
 var session = require("express-session");
 var bodyParser = require("body-parser");
-const { get } = require("request");
+var multer = require('multer');
+var upload = multer({ dest: 'uploads/' }) //업로드 경로 설정
+
+//const { get } = require("request");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(
@@ -72,13 +75,18 @@ app.get("/pst", function (req, res) {
 });
 
 app.get("/pstdetail", function (req, res) {
-  let contents = fs.readFileSync("C:\\Users\\cheol.hwang\\Downloads\\QVFGTM.DXF");
+  let contents = fs.readFileSync("C:\\workspace\\Docs\\Digital Engineering\\PE\\DXF\\SP20_Nike AIRMAX 90 FLYEASE_CV0526_Mesh_#680559_Z_.DXF.dxf");
   let helper = new dxf.Helper(contents.toString());
   let parsedData = helper.parsed;
   
   
   res.send(parsedData.blocks);
 
+});
+
+app.get("/pastImage", function (req, res) {
+  res.writeHead(200);
+  res.end(fs.readFileSync(__dirname + "/view/pastImage.html"));
 });
 
 app.get("/labtest", function (req, res) {
@@ -213,6 +221,11 @@ app.get("/download", async function (req, res) {
     if (err) throw err;
   });
 
+});
+
+app.post('/upload', upload.single('file'), function (req, res) {
+  res.send('Uploaded! : ' + req.file); // object를 리턴함
+  console.log(req.file); // 콘솔(터미널)을 통해서 req.file Object 내용 확인 가능.
 });
 
 

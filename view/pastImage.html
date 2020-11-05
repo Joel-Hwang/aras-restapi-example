@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<title>CSG PLM Partners</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
+
+<style>
+    .w3-card.w3-container:hover {
+        cursor: pointer;
+    }
+</style>
+
+<body>
+
+    <!-- Modal -->
+    <div class="w3-row-padding w3-center w3-margin-top">
+        <div>
+            <img src="" id="pastedImage">
+        </div>
+        <div>
+            <button onclick="upload()">
+                Upload this Image
+            </button>
+        </div>
+
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+
+        document.onpaste = function (event) {
+            var items = event.clipboardData.items;
+            console.log(JSON.stringify(items)); // will give you the mime types
+            var blob = items[0].getAsFile();
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                console.log(event.target.result);
+                document.querySelector('#pastedImage').src = event.target.result;
+                document.querySelector('#pastedImage').blob = blob;
+            }; // data url  
+            reader.readAsDataURL(blob);
+        };
+
+        function upload() {
+            var blob = document.querySelector('#pastedImage').blob;
+            var file = new File([blob],'test.png',{type:"image/png"});
+            var fd = new FormData();
+            fd.append('file', file,file.name);
+
+           /* $.ajax({
+                type: 'POST',
+                url: '/upload',
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                console.log(data);
+            
+            });*/
+
+            fetch(`/upload`, {method:"POST", body:fd})
+                .then(response => console.log(response.text()))
+
+        }
+
+      
+    </script>
+
+
+</body>
+
+</html>
