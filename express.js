@@ -8,7 +8,7 @@ var cors = require("cors");
 //var databaseName = "InnovatorSolutions";
 var apiServer = "http://203.228.101.197/digitalpcc/server/odata";
 var authServer = "http://203.228.101.197/digitalpcc/oauthserver/connect/token";
-var databaseName = "DigitalPCC";
+var databaseName = "DigitalPCC_Test";
 var request = require("request");
 var session = require("express-session");
 var bodyParser = require("body-parser");
@@ -74,8 +74,53 @@ app.get("/pst", function (req, res) {
   res.end(fs.readFileSync(__dirname + "/view/pst.html"));
 });
 
+app.get("/scada", function (req, res) {
+  res.writeHead(200);
+  res.end(fs.readFileSync(__dirname + "/view/scada.html"));
+});
+
+app.get("/scada/:product/:process", async function (req, res) {
+  let token = await getToken(req.session.login_name, req.session.password);
+  let product = req.params.product;
+  let process = req.params.process;
+
+  let sql = ` select top 1 A._json
+  from innovator.CS_BPFC_DETAIL A
+  inner join innovator.CS_BPFC B
+     on B.ID = A.SOURCE_ID
+  inner join innovator.Product C
+     on C.ID = B._PRODUCT
+  where C.KEYED_NAME = '${product}'
+  and A._NAME = 'Assembly Bonding PFC' `;
+
+    const options = {
+      uri: apiServer + "/method.ZX_Apply_SQL",
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+      body : {
+        sql : sql
+      },
+      json : true
+    };
+    var result = await requestSync(options);
+    let _jsonProp = result["SOAP-ENV:Envelope"]["SOAP-ENV:Body"].ApplyItemResponse.Result.Item._json;
+    let _json = JSON.parse(_jsonProp);
+
+    let resResult = [];
+    for(let stuff of _json){
+      if(stuff.className == 'Process' && stuff.name.includes(process) ){
+        resResult.push(stuff);
+      }
+    }
+
+
+    res.send(resResult);
+});
+
 app.get("/pstdetail", function (req, res) {
-  let contents = fs.readFileSync("C:\\workspace\\Docs\\Digital Engineering\\PE\\DXF\\SP20_Nike AIRMAX 90 FLYEASE_CV0526_Mesh_#680559_Z_.DXF.dxf");
+  let contents = fs.readFileSync("C:\\workspace\\Docs\\현업 분석\\PE\\DXF\\SP20_Nike AIRMAX 90 FLYEASE_CV0526_Mesh_#680559_Z_.DXF.dxf");
   let helper = new dxf.Helper(contents.toString());
   let parsedData = helper.parsed;
   
